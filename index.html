@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f4f0e6">
+<title>你最像《请回答1988》里的谁？</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --main:#c96852;
+  --main-light:#e28b78;
+  --bg:#f4f0e6;
+  --ink:#2f2b28;
+  --ink2:#7b736c;
+  --line:#e6dfd1;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(201,104,82,.08), transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(139,168,137,.15), transparent 40%);
+  background-attachment:fixed;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:500px;margin:0 auto;padding:40px 20px 60px}
+.screen{display:none}
+.screen.active{display:block;animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* 封面 */
+.cover{text-align:center;padding-top:40px}
+.badge{display:inline-block;font-size:12px;font-weight:600;color:var(--main);
+  background:#fff5f2;border:1px solid #f0dbd4;padding:7px 16px;border-radius:999px;
+  letter-spacing:.5px;margin-bottom:24px}
+h1{font-size:30px;line-height:1.4;letter-spacing:-.5px;font-weight:800}
+.grad{background:linear-gradient(100deg,#c96852,#8ba889);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover-sub{font-size:14px;color:var(--ink2);line-height:2;margin:18px 0 34px}
+.btn{
+  width:100%;border:none;cursor:pointer;font-family:inherit;
+  font-size:16px;font-weight:700;color:#fff;padding:17px;border-radius:14px;
+  background:linear-gradient(100deg,#d97963,#c96852);
+  box-shadow:0 14px 28px -12px rgba(201,104,82,.6);
+  transition:transform .15s ease;
+}
+.btn:active{transform:scale(.97)}
+.tiny{font-size:11.5px;color:#a89fb3;margin-top:22px;line-height:1.8}
+
+/* 答题 */
+.quiz-top{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.back-btn{
+  width:34px;height:34px;flex:0 0 auto;border-radius:50%;
+  border:1px solid var(--line);background:#fff;color:var(--ink2);
+  font-size:19px;line-height:1;cursor:pointer;font-family:inherit;
+  transition:opacity .2s;
+}
+.back-btn:disabled{opacity:.3;cursor:default}
+.progress{flex:1;height:6px;background:#e8e2d6;border-radius:999px;overflow:hidden}
+.progress-in{height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,#e28b78,#8ba889);
+  transition:width .3s ease}
+.counter{flex:0 0 auto;font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums;font-weight:600}
+.q-card{
+  background:#fff;border-radius:20px;padding:26px 22px;
+  box-shadow:0 16px 36px -20px rgba(90,60,50,.2);
+  border:1px solid rgba(255,255,255,.8);
+}
+.q-num{font-size:12px;font-weight:800;color:var(--main);letter-spacing:1.5px;margin-bottom:12px}
+.q-title{font-size:18px;line-height:1.6;font-weight:700;margin-bottom:20px}
+.opt{
+  display:block;width:100%;text-align:left;font-family:inherit;
+  font-size:14.5px;line-height:1.6;color:var(--ink);
+  padding:15px 18px;border-radius:12px;
+  border:1.5px solid var(--line);background:#fbfaf8;
+  margin-bottom:12px;cursor:pointer;
+  transition:border-color .15s,background .15s;
+}
+.opt:hover{border-color:#e0d4c4;background:#fff}
+.opt.sel{
+  border-color:var(--main);
+  background:#fff8f6;
+}
+
+/* 结果 */
+.result-card{
+  background:#fff;border-radius:22px;padding:30px 24px 26px;
+  box-shadow:0 16px 36px -20px rgba(90,60,50,.2);
+  border:1px solid rgba(255,255,255,.8);
+  text-align:center;
+}
+.r-emoji{font-size:60px;line-height:1;margin-bottom:10px}
+.r-tag{
+  display:inline-block;font-size:12px;font-weight:600;color:#5c7b5a;
+  background:#eef3ed;padding:6px 14px;border-radius:999px;margin:10px 0 12px;
+}
+.r-name{font-size:26px;font-weight:800;letter-spacing:-.3px;color:var(--main)}
+.r-desc{font-size:14.5px;line-height:1.9;color:#555;text-align:left;margin-top:18px}
+.block{text-align:left;margin-top:26px}
+.block h3{font-size:14px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.block h3::before{content:"";width:4px;height:14px;border-radius:2px;
+  background:linear-gradient(180deg,var(--main),#8ba889)}
+.quote-box{
+  text-align:left;margin-top:20px;padding:18px;border-radius:12px;
+  background:#fbf8f2;border-left:4px solid var(--main);font-size:14px;line-height:1.8;color:#666;font-style:italic;
+}
+.match-box{
+  text-align:left;margin-top:16px;padding:16px;border-radius:12px;
+  font-size:14px;line-height:1.8;color:#555;background:#f4f7f3;
+}
+.match-box b{display:block;font-size:12.5px;color:#4a6648;margin-bottom:6px}
+
+.bars{margin-top:10px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.bar-name{flex:0 0 90px;font-size:12.5px;color:#555;font-weight:600;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:8px;background:#f0ebe1;border-radius:999px;overflow:hidden}
+.bar-fill{height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,#e28b78,#c96852);
+  transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar-row:first-child .bar-fill{background:linear-gradient(90deg,#8ba889,#6d8c6a)}
+
+.actions{margin-top:26px;display:flex;flex-direction:column;gap:12px}
+.btn-ghost{
+  width:100%;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;
+  padding:15px;border-radius:14px;color:var(--ink2);
+  background:#fff;border:1.5px solid var(--line);transition:transform .15s;
+}
+.btn-ghost:active{transform:scale(.97)}
+.disclaimer{font-size:11.5px;color:#a89fb3;line-height:1.9;text-align:center;margin-top:22px}
+
+.toast{
+  position:fixed;left:50%;bottom:40px;transform:translate(-50%,20px);
+  background:rgba(47,43,40,.92);color:#fff;font-size:13px;
+  padding:11px 22px;border-radius:999px;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s;z-index:99;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 封面 -->
+  <section id="screen-cover" class="screen active">
+    <div class="cover">
+      <div class="badge">40 题 · 双门洞居民认证</div>
+      <h1>你最像《请回答1988》<br><span class="grad">里的谁？</span></h1>
+      <p class="cover-sub">德善、正焕、阿泽、宝拉、豹子女士...<br>凭第一直觉选择，不要想太久</p>
+      <button class="btn" id="startBtn">开始测试</button>
+      <p class="tiny">结果仅供娱乐，致敬永远的1988</p>
+    </div>
+  </section>
+
+  <!-- 答题 -->
+  <section id="screen-quiz" class="screen">
+    <div class="quiz-top">
+      <button class="back-btn" id="backBtn" aria-label="上一题">‹</button>
+      <div class="progress"><div class="progress-in" id="progressIn"></div></div>
+      <div class="counter" id="counter">1 / 40</div>
+    </div>
+    <div class="q-card">
+      <div class="q-num" id="qNum">Q1</div>
+      <h2 class="q-title" id="qTitle"></h2>
+      <div id="options"></div>
+    </div>
+  </section>
+
+  <!-- 结果 -->
+  <section id="screen-result" class="screen">
+    <div class="result-card">
+      <div class="r-emoji" id="rEmoji"></div>
+      <div class="r-tag" id="rTag"></div>
+      <h2 class="r-name" id="rName"></h2>
+      <p class="r-desc" id="rDesc"></p>
+
+      <div class="block">
+        <h3>经典台词</h3>
+        <div class="quote-box" id="rQuote"></div>
+      </div>
+
+      <div class="match-box" id="rMatch"></div>
+
+      <div class="block">
+        <h3>你的双门洞基因图谱</h3>
+        <div class="bars" id="rBars"></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="copyBtn">复制分享文案</button>
+        <button class="btn-ghost" id="againBtn">再测一次</button>
+      </div>
+    </div>
+    <p class="disclaimer">测试仅供娱乐，不具任何专业诊断性。<br>“搞怪的不是红绿灯，不是时机，而是我数不清的犹豫。”</p>
+  </section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 人物设定 ============ */
+const TYPES = {
+  D: {
+    name: '成德善', emoji: '🌻', tag: '双门洞特级脸色派',
+    desc: '你就像双门洞的小太阳，虽然经常丢三落四、功课不好，但你是最懂得怎么去爱、怎么让人开心的人。你心思细腻，在乎身边每一个人的感受。偶尔会委屈自己，但你总能用笑容化解一切。',
+    quote: '“与其说是讨厌，不如说是害怕。我害怕人们看穿我。”',
+    match: '<b>你的双门洞伴侣：崔泽 ♟️</b><br>阿泽的直球和坚定，能给你满满的安全感，让你不用再去猜。'
+  },
+  B: {
+    name: '成宝拉', emoji: '🔥', tag: '双门洞傲娇学霸',
+    desc: '你外表冷酷，脾气火爆，但其实比谁都重感情。你独立、优秀，有着不服输的劲头。对待家人和朋友，你总是刀子嘴豆腐心，默默用自己的方式关心着大家。',
+    quote: '“大人们，也会疼。大人们只是一直在强忍着，忙着做作为大人应该做的事。”',
+    match: '<b>你的双门洞伴侣：成善宇 👓</b><br>善宇的温柔和包容，能融化你这座冰山，看穿你的口是心非。'
+  },
+  Z: {
+    name: '金正焕', emoji: '💔', tag: '双门洞狗正八',
+    desc: '你是个外冷内热的人，话不多，有时甚至有点毒舌。你的爱总是藏在心里，做得多说得少。你心思非常细腻，总能默默照顾到身边的人。但有时，你的犹豫会让你错过很多。',
+    quote: '“搞怪的不是红绿灯，不是时机，而是我数不清的犹豫。”',
+    match: '<b>你的双门洞伴侣：成德善 🌻</b><br>虽然你总是推开她，但她那没心没肺的阳光，其实是你最向往的温暖。'
+  },
+  A: {
+    name: '崔泽', emoji: '♟️', tag: '双门洞天才棋手',
+    desc: '你在专业领域有着极高的天赋，但在生活里可能是个小白。你性格温和，纯粹，没有那么多弯弯绕绕。但对于自己认定的事和喜欢的人，你无比坚定，有着直球出击的勇气。',
+    quote: '“你对我，一无所知。我喜欢你，不是开玩笑的。”',
+    match: '<b>你的双门洞伴侣：成德善 🌻</b><br>你虽然生活九级伤残，但她能给你带来无微不至的照顾。'
+  },
+  S: {
+    name: '成善宇', emoji: '👓', tag: '双门洞模范生',
+    desc: '你是大家眼里的乖乖女/好学生，温柔、孝顺、懂事。你非常体贴家人和朋友，总是把别人的感受放在第一位。你对感情很执着，认定的人就会一直守护。',
+    quote: '“妈妈，我爱你。”',
+    match: '<b>你的双门洞伴侣：成宝拉 🔥</b><br>只有宝拉大姐那样的火，才能点燃你内心的热情。'
+  },
+  L: {
+    name: '柳东龙', emoji: '🕺', tag: '双门洞军师',
+    desc: '你是朋友圈里的八卦中心，也是看透一切的军师。你爱玩、爱跳舞，喜欢搞笑，但心里其实很渴望家人的陪伴。你比谁都清醒，总能在关键时刻拉朋友一把。',
+    quote: '“这个世界上最简单的事情，就是指责别人。但人生最难的事情，是承担责任。”',
+    match: '<b>你的双门洞伴侣：金正峰 🍀</b><br>你们俩凑在一起，绝对是双门洞最欢乐的搞笑组合。'
+  },
+  F: {
+    name: '金正峰', emoji: '🍀', tag: '双门洞佛系锦鲤',
+    desc: '你是高考七次的传奇，也是运气爆棚的锦鲤。你不争不抢，有着自己专注的爱好（游戏、邮票、小玩意）。你非常善良纯情，对喜欢的人可以付出一切。',
+    quote: '“有的事，我虽然不知道，但我也会尽力去做的。”',
+    match: '<b>你的双门洞伴侣：张美玉 🎀</b><br>只要你认定了，你就不顾一切地去寻找她，你的纯情最动人。'
+  },
+  M: {
+    name: '罗美兰', emoji: '👑', tag: '双门洞大姐大',
+    desc: '你气场全开，霸气十足。你刀子嘴豆腐心，热心地照顾着身边的每一个人。你好面子，但为了家人可以付出一切。有你在的地方，就绝对有安全感。',
+    quote: '“我这一生，除了你，没有别的。你就是我活着的理由。”',
+    match: '<b>你的双门洞伴侣：金成均 🤡</b><br>虽然他偶尔抠门又搞笑，但总能逗你开心，做你最坚实的后盾。'
+  },
+  C: {
+    name: '成东镒', emoji: '🍂', tag: '双门洞心软老爸',
+    desc: '你是个老好人，心思柔软。你总是忍不住买些没用的东西，也喜欢给家人讲大道理。你不完美，甚至经常犯错，但你有着深沉的爱，愿意为了家人倾尽所有。',
+    quote: '“爸爸也不是出生开始就是爸爸的，爸爸也是第一次当爸爸。”',
+    match: '<b>你的双门洞伴侣：李一花 🌸</b><br>她用她的精打细算，包容了你所有的天真和心软。'
+  },
+  J: {
+    name: '金成均', emoji: '🤡', tag: '双门洞搞笑担当',
+    desc: '你是个自带笑点的乐天派。你有时候抠门到极致，但偶尔又会神经质般地大方。你喜欢搞笑，喜欢家人，虽然偶尔会被老婆孩子嫌弃，但你是家里不可或缺的开心果。',
+    quote: '“老婆，我好爱你啊！”',
+    match: '<b>你的双门洞伴侣：罗美兰 👑</b><br>你在外面搞笑，她来维持家庭的地位和秩序，绝配。'
+  }
+};
+
+/* ============ 40道题库 ============ */
+const QUESTIONS = [
+  { q: "早上起床，你的第一反应是？", options: [
+    { text: "再眯五分钟，等妈妈咆哮", type: "D" },
+    { text: "迅速起床，按计划背单词/看书", type: "B" },
+    { text: "面瘫着坐起来，冷静发呆", type: "Z" },
+    { text: "躺在床上玩手机/想游戏", type: "F" }
+  ]},
+  { q: "朋友遇到烦心事找你倾诉，你会？", options: [
+    { text: "给TA一个拥抱，说“我懂你”", type: "S" },
+    { text: "逗TA笑，岔开话题，带TA去玩", type: "L" },
+    { text: "一针见血指出问题所在", type: "A" },
+    { text: "直接问：谁欺负你了？我去帮你出头", type: "M" }
+  ]},
+  { q: "你对自己的房间有什么要求？", options: [
+    { text: "乱点没关系，找得到东西就行", type: "C" },
+    { text: "无所谓，反正我不怎么在房间待", type: "J" },
+    { text: "忍不住买各种乱七八糟的小玩意堆满", type: "D" },
+    { text: "必须一尘不染，极其整洁", type: "Z" }
+  ]},
+  { q: "如果有暗恋的人，你的表现更像？", options: [
+    { text: "故意欺负TA，引起TA的注意", type: "B" },
+    { text: "找个好时机，直接盯着TA的眼睛说喜欢", type: "A" },
+    { text: "忍不住对TA好，眼神藏不住", type: "S" },
+    { text: "暗搓搓地关心，打死不表白", type: "D" }
+  ]},
+  { q: "你的消费观念是？", options: [
+    { text: "精打细算，钱要花在刀刃上", type: "M" },
+    { text: "看到喜欢的就买，月底吃土", type: "C" },
+    { text: "只买必需品，极简主义", type: "B" },
+    { text: "极度抠门，偶尔也会突然挥霍一把", type: "F" }
+  ]},
+  { q: "遇到不公平的事情，你的反应是？", options: [
+    { text: "直接开骂，绝不妥协", type: "Z" },
+    { text: "大声抗议，用逻辑怼回去", type: "L" },
+    { text: "和平解决，尽量让步", type: "S" },
+    { text: "在心里骂骂咧咧，面上不动声色", type: "J" }
+  ]},
+  { q: "在朋友聚会里，你通常扮演什么角色？", options: [
+    { text: "气氛担当，搞怪逗大家笑", type: "D" },
+    { text: "组织者，负责安排一切", type: "M" },
+    { text: "八卦中心，什么都知道", type: "L" },
+    { text: "默默买单或者默默坐在角落的人", type: "C" }
+  ]},
+  { q: "面对巨大的压力（比如考试/工作），你会？", options: [
+    { text: "熬夜死磕，不睡觉也要弄完", type: "B" },
+    { text: "狂吃东西或者疯狂打游戏转移注意力", type: "F" },
+    { text: "找个没人的地方抽根烟/发呆", type: "A" },
+    { text: "出去跑两圈，或者找个地儿大吼一声", type: "J" }
+  ]},
+  { q: "你对穿着的态度是？", options: [
+    { text: "舒服最重要，拖鞋出门也行", type: "D" },
+    { text: "喜欢穿运动服/校服，方便", type: "S" },
+    { text: "简单干净，不需要花哨", type: "Z" },
+    { text: "喜欢给自己买花里胡哨的小配件", type: "M" }
+  ]},
+  { q: "什么事会让你瞬间暴躁？", options: [
+    { text: "别人动了我心爱的手办/游戏", type: "F" },
+    { text: "浪费我的时间，效率低下", type: "B" },
+    { text: "被人冤枉，或者被家人忽视", type: "D" },
+    { text: "打扰我睡觉，或者让我吃醋", type: "Z" }
+  ]},
+  { q: "如果有朋友要离开，你会？", options: [
+    { text: "点个蜡烛，跟TA彻夜长谈", type: "C" },
+    { text: "跟着哭得稀里哗啦，舍不得", type: "L" },
+    { text: "表面冷酷，私下偷偷哭", type: "A" },
+    { text: "把难过藏在心里，继续生活", type: "S" }
+  ]},
+  { q: "你的拿手好戏（或隐藏技能）是什么？", options: [
+    { text: "学习/工作能力极强", type: "B" },
+    { text: "手工/做饭/照顾人", type: "S" },
+    { text: "运气爆棚，总能抽中好签", type: "F" },
+    { text: "讲笑话/跳舞/活跃气氛", type: "M" }
+  ]},
+  { q: "如果全家停电了，你会做什么？", options: [
+    { text: "点个蜡烛，跟家人一起聊天", type: "C" },
+    { text: "趁机睡觉，终于可以休息了", type: "Z" },
+    { text: "翻出很久没玩的大富翁/桌游", type: "F" },
+    { text: "拿出手电筒给大家讲鬼故事", type: "L" }
+  ]},
+  { q: "你的房间门上如果有牌子，上面会写？", options: [
+    { text: "“正在发功，请勿打扰”", type: "J" },
+    { text: "“欢迎光临，零食随便吃”", type: "D" },
+    { text: "“正在思考人生，有事发短信”", type: "A" },
+    { text: "“请敲门，但大概率听不见”", type: "Z" }
+  ]},
+  { q: "别人夸你的时候，你会？", options: [
+    { text: "开心得飞起，直接表现出来", type: "D" },
+    { text: "表面平静，心里暗爽", type: "B" },
+    { text: "大手一挥：这算啥，我请客！", type: "M" },
+    { text: "微笑着接受，谦虚回应", type: "S" }
+  ]},
+  { q: "如果给家里人买礼物，你会买？", options: [
+    { text: "实用的东西，比如衣服、保健品", type: "S" },
+    { text: "自己觉得好玩的、新奇的东西", type: "C" },
+    { text: "妈妈舍不得买的护肤品/衣服", type: "M" },
+    { text: "给钱最实在", type: "J" }
+  ]},
+  { q: "做家务对你来说意味着什么？", options: [
+    { text: "头疼，能躲就躲", type: "D" },
+    { text: "顺手的事，一个人住也得干", type: "B" },
+    { text: "只要妈妈不在，我就能弄得一团糟", type: "Z" },
+    { text: "我的家，我有责任保持干净", type: "F" }
+  ]},
+  { q: "团队合作中，你最受不了哪种人？", options: [
+    { text: "偷懒耍滑，不干实事", type: "B" },
+    { text: "过于情绪化，动不动就哭", type: "S" },
+    { text: "瞎指挥，不懂装懂", type: "L" },
+    { text: "磨磨唧唧，没有时间观念", type: "M" }
+  ]},
+  { q: "如果你有一大笔钱，你会？", options: [
+    { text: "偷偷买没用的古董/小玩意", type: "C" },
+    { text: "存起来，以备不时之需", type: "J" },
+    { text: "带全家人去旅行，吃顿好的", type: "B" },
+    { text: "买下所有喜欢的玩具/游戏", type: "F" }
+  ]},
+  { q: "面对喜欢的人（或好朋友）和别人走得近，你会？", options: [
+    { text: "直接吃醋，表现得很明显", type: "D" },
+    { text: "默默生气，开始冷战", type: "Z" },
+    { text: "对TA更好，用实力把人抢回来", type: "A" },
+    { text: "假装不在意，其实心里在乎得要死", type: "L" }
+  ]},
+  { q: "你平时最常有的表情是？", options: [
+    { text: "热情洋溢，总是笑嘻嘻的", type: "M" },
+    { text: "带着一点搞笑和呆萌", type: "J" },
+    { text: "严肃认真，带着学霸/工作狂的冷峻", type: "S" },
+    { text: "面无表情，看起来像在生气", type: "B" }
+  ]},
+  { q: "交朋友时，你更看重什么？", options: [
+    { text: "能玩到一块儿去，有趣", type: "L" },
+    { text: "真诚善良，能互相依靠", type: "S" },
+    { text: "聪明，有共同话题", type: "C" },
+    { text: "缘分，感觉对了就行", type: "F" }
+  ]},
+  { q: "家里安排相亲，你的态度是？", options: [
+    { text: "打扮得漂漂亮亮/帅帅气气地去吃顿好的", type: "A" },
+    { text: "抵触，我连自己都顾不好", type: "Z" },
+    { text: "顺从，去看看也无妨", type: "D" },
+    { text: "抗拒，觉得单身挺好", type: "M" }
+  ]},
+  { q: "如果突然得到一个超能力，你会选？", options: [
+    { text: "点石成金，再也不用上班", type: "J" },
+    { text: "瞬间移动，去哪都方便", type: "D" },
+    { text: "过目不忘，考试不愁", type: "B" },
+    { text: "读心术，看看别人到底在想啥", type: "C" }
+  ]},
+  { q: "别人对你的第一印象通常是？", options: [
+    { text: "温文尔雅，有礼貌", type: "A" },
+    { text: "话痨，有点搞笑", type: "L" },
+    { text: "闷葫芦，不爱说话", type: "Z" },
+    { text: "温柔，脾气很好", type: "S" }
+  ]},
+  { q: "遇到不知好歹、占了便宜还卖乖的人，你会？", options: [
+    { text: "直接开骂，怼回去", type: "B" },
+    { text: "阴阳怪气，用毒舌嘲讽", type: "Z" },
+    { text: "在心里默默扎小人，下次远离", type: "C" },
+    { text: "当面笑嘻嘻，转身就当没这个朋友", type: "J" }
+  ]},
+  { q: "最向往的周末生活是？", options: [
+    { text: "约朋友逛街、吃路边摊", type: "D" },
+    { text: "一个人在家看书、看剧", type: "B" },
+    { text: "做自己感兴趣的事，比如拼模型", type: "F" },
+    { text: "去网吧打游戏或者去唱歌", type: "L" }
+  ]},
+  { q: "你如何看待“秀恩爱”？", options: [
+    { text: "看到别人秀，心里会默默羡慕", type: "A" },
+    { text: "自己也会秀，觉得幸福就要大声说出来", type: "M" },
+    { text: "觉得挺无聊的，不关注", type: "D" },
+    { text: "跟着起哄，瞎凑热闹", type: "Z" }
+  ]},
+  { q: "如果朋友在你面前抱怨生活，你会？", options: [
+    { text: "静静听着，陪着喝杯酒/喝杯水", type: "S" },
+    { text: "用搞笑的段子逗乐TA", type: "L" },
+    { text: "给TA分析利弊，规划未来", type: "A" },
+    { text: "带TA去吃顿好的，我请客", type: "C" }
+  ]},
+  { q: "你对于“妈妈”这个角色的看法是？", options: [
+    { text: "是我的避风港，最离不开的人", type: "D" },
+    { text: "很强势，但我知道她爱我", type: "B" },
+    { text: "妈妈就是家里的超级英雄", type: "M" },
+    { text: "想帮她分担更多，做个懂事的孩子", type: "S" }
+  ]},
+  { q: "你最容易在什么事情上犹豫不决？", options: [
+    { text: "要不要表白，要不要道歉", type: "Z" },
+    { text: "要不要再玩一局游戏", type: "F" },
+    { text: "今天穿什么，吃什么", type: "A" },
+    { text: "要不要买这个没用的东西", type: "D" }
+  ]},
+  { q: "如果你被锁在门外，钥匙在里面，你会？", options: [
+    { text: "坐在门口等爸妈回来", type: "C" },
+    { text: "烦躁地踹一脚门", type: "J" },
+    { text: "给朋友打电话求助，借宿一宿", type: "L" },
+    { text: "冷静思考，找开锁公司", type: "S" }
+  ]},
+  { q: "什么样的生活对你来说最幸福？", options: [
+    { text: "家人健康，朋友都在身边", type: "S" },
+    { text: "实现了自己的梦想，成为有用的人", type: "B" },
+    { text: "和爱的人平平淡淡度过每一天", type: "A" },
+    { text: "每天都能有吃有喝有玩，不用操心", type: "F" }
+  ]},
+  { q: "如果你和最好的朋友同时喜欢上一个人，你会？", options: [
+    { text: "让给朋友，友谊第一", type: "D" },
+    { text: "不会放弃，感情是自私的", type: "A" },
+    { text: "默默退出，自己躲起来伤心", type: "Z" },
+    { text: "根本没这机会，因为我喜欢的人喜欢TA？", type: "L" }
+  ]},
+  { q: "你对于“男/女朋友”的期待是？", options: [
+    { text: "能给我买好多好吃的", type: "M" },
+    { text: "幽默，能一起玩", type: "J" },
+    { text: "成熟、稳重、有上进心", type: "B" },
+    { text: "只要长得好看就行", type: "C" }
+  ]},
+  { q: "你怎么看待家里的那些“破烂”旧物？", options: [
+    { text: "觉得都是回忆，舍不得扔", type: "C" },
+    { text: "必须断舍离，看着心烦", type: "B" },
+    { text: "偷偷藏起来，属于自己的小秘密", type: "F" },
+    { text: "顺手当废品卖了换点零花钱", type: "J" }
+  ]},
+  { q: "如果被朋友坑了，你会？", options: [
+    { text: "非常受伤，很久不理TA", type: "D" },
+    { text: "记在心里，以后不再深交", type: "Z" },
+    { text: "大度原谅，但不会再信任", type: "S" },
+    { text: "直接找上门，当面质问", type: "L" }
+  ]},
+  { q: "站在镜子前，你最常有的动作是？", options: [
+    { text: "揉揉肚子，觉得自己又胖了", type: "F" },
+    { text: "整理头发，觉得自己还挺好看", type: "D" },
+    { text: "面无表情地看几秒，然后走开", type: "Z" },
+    { text: "做个鬼脸，逗自己开心", type: "J" }
+  ]},
+  { q: "你的理想居住地是？", options: [
+    { text: "热闹的市中心，充满烟火气", type: "M" },
+    { text: "带有小院子的老房子，像双门洞那样", type: "C" },
+    { text: "安静的图书馆旁边，适合学习", type: "B" },
+    { text: "哪里都行，只要有 WiFi", type: "S" }
+  ]},
+  { q: "如果让现在的你对十年后的自己说一句话，你会说？", options: [
+    { text: "“谢谢你，一直没心没肺地快乐着。”", type: "D" },
+    { text: "“你终于变成更优秀、更温柔的人了吧。”", type: "S" },
+    { text: "“很庆幸，你没有变成自己讨厌的样子。”", type: "A" },
+    { text: "“别再犹豫了，去做你想做的事吧。”", type: "Z" }
+  ]}
+];
+
+/* ============ 状态与逻辑 ============ */
+let current = 0;
+let answers = new Array(QUESTIONS.length).fill(null);
+let scores = {};
+let currentResult = null;
+
+const $ = s => document.querySelector(s);
+function show(id){
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  $('#' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+}
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function startQuiz(){
+  answers.fill(null);
+  current = 0;
+  scores = { D: 0, B: 0, Z: 0, A: 0, S: 0, L: 0, F: 0, M: 0, C: 0, J: 0 };
+  renderQuestion();
+  show('screen-quiz');
+}
+
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  $('#qNum').textContent = 'Q' + (current + 1);
+  $('#qTitle').textContent = q.q;
+  $('#counter').textContent = (current + 1) + ' / ' + QUESTIONS.length;
+  $('#progressIn').style.width = ((current + 1) / QUESTIONS.length * 100) + '%';
+  $('#backBtn').disabled = current === 0;
+
+  const box = $('#options');
+  box.innerHTML = '';
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt' + (answers[current] === idx ? ' sel' : '');
+    btn.type = 'button';
+    btn.textContent = opt.text;
+    btn.onclick = () => pick(idx);
+    box.appendChild(btn);
+  });
+
+  const card = box.parentElement;
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'fadeUp .35s ease both';
+}
+
+function pick(choice){
+  const opts = document.querySelectorAll('.opt');
+  if (opts[choice].classList.contains('sel')) return; // 防止重复点击
+
+  answers[current] = choice;
+  opts.forEach(o => o.classList.remove('sel'));
+  opts[choice].classList.add('sel');
+
+  setTimeout(() => {
+    if (current < QUESTIONS.length - 1){
+      current++;
+      renderQuestion();
+    } else {
+      renderResult();
+    }
+  }, 250);
+}
+
+function goBack(){
+  if (current === 0) return;
+  current--;
+  renderQuestion();
+}
+
+function calcResult(){
+  scores = { D: 0, B: 0, Z: 0, A: 0, S: 0, L: 0, F: 0, M: 0, C: 0, J: 0 };
+  answers.forEach((ansIdx, qIdx) => {
+    if (ansIdx !== null) {
+      const type = QUESTIONS[qIdx].options[ansIdx].type;
+      scores[type] = (scores[type] || 0) + 1;
+    }
+  });
+
+  let best = 'D';
+  let max = -1;
+  for (const key in scores) {
+    if (scores[key] > max) {
+      max = scores[key];
+      best = key;
+    }
+  }
+  return best;
+}
+
+function renderResult(){
+  const bestKey = calcResult();
+  currentResult = bestKey;
+  const t = TYPES[bestKey];
+
+  $('#rEmoji').textContent = t.emoji;
+  $('#rTag').textContent = t.tag;
+  $('#rName').textContent = t.name;
+  $('#rDesc').textContent = t.desc;
+  $('#rQuote').innerHTML = t.quote;
+  $('#rMatch').innerHTML = t.match;
+
+  // 绘制基因图谱（按得分排序）
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const maxScore = sorted[0][1] || 1;
+  const barsEl = $('#rBars');
+  barsEl.innerHTML = '';
+  sorted.forEach(([k, v]) => {
+    const pct = 15 + (v / maxScore) * 85; // 最低保留15%
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML =
+      '<span class="bar-name">' + TYPES[k].name + '</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:0"></div></div>';
+    barsEl.appendChild(row);
+    requestAnimationFrame(() => {
+      row.querySelector('.bar-fill').style.width = pct.toFixed(1) + '%';
+    });
+  });
+
+  show('screen-result');
+}
+
+function copyShare(){
+  if (!currentResult) return;
+  const t = TYPES[currentResult];
+  const text = '在双门洞基因测试中，我测出了自己最像《请回答1988》里的「' + t.name + '」' + t.emoji + '——' + t.tag + '。\n你是双门洞的谁？来测测看吧！';
+  
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(() => toast('已复制，去粘贴吧')).catch(fallback);
+  } else {
+    fallback();
+  }
+  function fallback(){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); toast('已复制，去粘贴吧'); }
+    catch (e) { toast('复制失败，请长按选择'); }
+    document.body.removeChild(ta);
+  }
+}
+
+$('#startBtn').addEventListener('click', startQuiz);
+$('#backBtn').addEventListener('click', goBack);
+$('#againBtn').addEventListener('click', startQuiz);
+$('#copyBtn').addEventListener('click', copyShare);
+</script>
+</body>
+</html>
